@@ -1,9 +1,7 @@
-from django.urls import path , include
-from rest_framework_simplejwt.views import (
-    TokenObtainPairView,
-    TokenRefreshView,
-)
-urlpatterns = [
-    path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-]
+from rest_framework.routers import DefaultRouter
+from .views import  MemberRegisterViewset
+
+
+member_router = DefaultRouter()
+member_router.register("register", MemberRegisterViewset , basename= "member_register")
+urlpatterns = member_router.urls
