@@ -154,4 +154,7 @@ SIMPLE_JWT = {
 INTERNAL_IPS = [
     '127.0.0.1',
 ]
-    
+
+# custom user model 
+
+AUTH_USER_MODEL = 'family_member.Member'
