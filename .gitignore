@@ -131,3 +131,11 @@ dmypy.json
 
 notes.txt 
 db.sqlite3
+
+# vscode 
+.vscode
+.vscode/
+
+# include pychache and migrations files 
+family_tree/*/__pycache__/*
+family_tree/*/migrations/*
