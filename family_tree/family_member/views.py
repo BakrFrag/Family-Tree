@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404
 from rest_framework import viewsets
 from rest_framework.mixins import CreateModelMixin,  ListModelMixin
 from rest_framework import status
@@ -62,79 +63,24 @@ class MemberViewset(
         serializer.is_valid(raise_exception=True)
         relative_id = serializer.validated_data.get("relative_id")
         parent_user = request.user 
-        relative_user = Member.objects.filter(id= relative_id).first()
+      #  relative_user = Member.objects.filter(id= relative_id).first()
+        
+        relative_user = get_object_or_404(Member , id = relative_id)
         if parent_user == relative_user:
             return Response({
                 "message":"Parent user is the same as relative user!"
             },status = status.HTTP_400_BAD_REQUEST)
-        if relative_user:
-            if relative_user.parent is None and not relative_user.member_set.all():
+        elif relative_user in parent_user.member_set.all():
+            return Response(
+                {
+                    "message":f"relative user: {relative_user.username} is already in relatives"
+                }, status = status.HTTP_400_BAD_REQUEST
+            )
+        elif relative_user.parent is None and not relative_user.member_set.all():
                 parent_user.member_set.add(relative_user)
                 return Response({
                     "message":f"relative user {relative_user.username} add to parent user {parent_user.username}"
                 },status = status.HTTP_200_OK)  
-            return Response({
-                "message":f"relative user {relative_user.username} associated with anther parent user or relative user is already parent user"
-            },status = status.HTTP_400_BAD_REQUEST)  
         return Response({
-            "message":"relative user not exists"
-        },status = status.HTTP_400_BAD_REQUEST)
-
-class MemberRelativeViewset(  
-            CreateModelMixin,
-            ListModelMixin,
-            viewsets.GenericViewSet):
-
-    serializer_class = MemberSerializer
-
-
-    def get_serializer_context(self):
-        """
-        parse data to serializer
-        """
-        return {
-            "parent_user":self.request.user
-        }
-
-    def get_queryset(self):
-        """
-        if user will return user detail and associated relatives 
-        if username parsed them if it user relative will display family tree 
-        otherwise none
-        """
-        user = self.request.user
-        kwargs = self.request.query_params
-        parsed_username = kwargs.get("username",None)
-        if parsed_username is not None:
-            return Member.objects.filter(username = parsed_username) if parsed_username in Member.objects.filter(username = user.username).first().member_set.values_list("username",flat = True) else Member.objects.none()
-        queryset = Member.objects.filter(username = user.username)
-        return queryset
-
-
-
-    
-    def create(self,request,*args,**kwargs):
-        """
-        add relatives to user
-        """
-        serializer = RelativeAddSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        relative_id = serializer.validated_data.get("relative_id")
-        parent_user = request.user 
-        relative_user = Member.objects.filter(id= relative_id).first()
-        if parent_user == relative_user:
-            return Response({
-                "message":"Parent user is the same as relative user!"
-            },status = status.HTTP_400_BAD_REQUEST)
-        if relative_user:
-            if relative_user.parent is None and not relative_user.member_set.all():
-                parent_user.member_set.add(relative_user)
-                return Response({
-                    "message":f"relative user {relative_user.username} add to parent user {parent_user.username}"
-                },status = status.HTTP_200_OK)  
-            return Response({
                 "message":f"relative user {relative_user.username} associated with anther parent user or relative user is already parent user"
-            },status = status.HTTP_400_BAD_REQUEST)  
-        return Response({
-            "message":"relative user not exists"
-        },status = status.HTTP_400_BAD_REQUEST)
+            },status = status.HTTP_400_BAD_REQUEST) 
