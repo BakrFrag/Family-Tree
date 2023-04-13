@@ -3,14 +3,7 @@ from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers 
 from family_member.models import Member 
 
-class RelativeSerializer(serializers.ModelSerializer):
-    """
-    handle associated relatives to member
-    """
-    class Meta:
-        model = Member
-        fields = ["id","username","email"]
-        
+
 
 class MemberSerializer(serializers.ModelSerializer):
     """
@@ -18,10 +11,15 @@ class MemberSerializer(serializers.ModelSerializer):
     """
     password_confirm = serializers.CharField(write_only = True)
     password = serializers.CharField(write_only = True)
-    associated_members = RelativeSerializer( source = "member_set",many=True, read_only = True )
+   # associated_members = RelativeSerializer( source = "member_set",many=True, read_only = True )
+    associated_members = serializers.SerializerMethodField(read_only=True)
     class Meta:
         model = Member
         fields = ['id','username','email','password','password_confirm','associated_members']
+
+    def get_associated_members(self,obj):
+        serializer = self.__class__(obj.member_set.all(), many=True)
+        return serializer.data
 
     def validate_password(self, password_value):
         
@@ -48,3 +46,9 @@ class MemberSerializer(serializers.ModelSerializer):
         return Member.objects.create_user(
             **validated_data
         )
+
+class RelativeAddSerializer(serializers.Serializer):
+    """
+    handle relative id 
+    """
+    relative_id = serializers.IntegerField()
