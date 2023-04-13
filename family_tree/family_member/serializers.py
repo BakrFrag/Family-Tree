@@ -11,14 +11,16 @@ class MemberSerializer(serializers.ModelSerializer):
     """
     password_confirm = serializers.CharField(write_only = True)
     password = serializers.CharField(write_only = True)
-   # associated_members = RelativeSerializer( source = "member_set",many=True, read_only = True )
     associated_members = serializers.SerializerMethodField(read_only=True)
     class Meta:
         model = Member
         fields = ['id','username','email','password','password_confirm','associated_members']
 
     def get_associated_members(self,obj):
-        serializer = self.__class__(obj.member_set.all(), many=True)
+        """
+        get associated members recursively 
+        """
+        serializer = self.__class__(obj.member_set.all() , many=True)
         return serializer.data
 
     def validate_password(self, password_value):

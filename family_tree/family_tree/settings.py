@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'debug_toolbar',
     'rest_framework_simplejwt',
+    'drf_yasg',
 ]
 
 MIDDLEWARE = [
@@ -158,3 +159,4 @@ INTERNAL_IPS = [
 # custom user model 
 
 AUTH_USER_MODEL = 'family_member.Member'
+

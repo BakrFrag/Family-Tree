@@ -27,7 +27,7 @@ class MemberViewset(
         normal user can only view his family tree or family tree of his relatives 
         otherwise none
         """
-        queryset = Member.objects.exclude(is_staff=True).prefetch_related("member_set").all()
+        queryset = Member.objects.exclude(is_staff=True).prefetch_related("parent").all()
         user = self.request.user 
         kwargs = self.request.query_params
         parsed_username = kwargs.get("username")
