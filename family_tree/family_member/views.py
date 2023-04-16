@@ -66,14 +66,7 @@ class MemberViewset(
         serializer = RelativeAddSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         relative_id = serializer.validated_data.get("relative_id")
-        parent_user = self.request.user 
-        print("request.action:",self.action)
-        print("request.method:",self.request.method)
-        print("permissions:",self.get_permissions())
-        print("request user:",self.request.user)
-        print("parent_user:",parent_user.username)
-      #  relative_user = Member.objects.filter(id= relative_id).first()
-        
+        parent_user = self.request.user  
         relative_user = get_object_or_404(Member , id = relative_id)
         if parent_user == relative_user:
             return Response({
